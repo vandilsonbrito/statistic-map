@@ -1,11 +1,10 @@
 'use client';
-import StatisticInfoContainer from "@/components/statisticInfoContainer/StatisticInfoContainer";
 import { useReverseGeocod } from "@/hooks/useReverseGeocod";
 import { useGetCovidData } from "@/hooks/useGetCovidData";
 import { latAtom, lngAtom, isMapClickedAtom, countryName, covidDataFetched, latestDay, dataLatestDay } from "@/utils/stores/atoms";
 import { useAtom } from "jotai";
 import dynamic from 'next/dynamic';
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { CaseData, DataFetched } from "@/utils/types/types";
 
 const DynamicMap = dynamic(() => import('../components/map/Map'), {
@@ -19,6 +18,7 @@ export default function Home() {
   const [covidData, setCovidData] = useAtom(covidDataFetched);
   const [lastApiUpdateDay, setLastApiUpdateDay] = useAtom(latestDay);
   const [latestTotalApiData, setLatestTotalApiData] = useAtom(dataLatestDay);
+  const [countryPercentage, setCountryPercentage] = useState<string>('');
 
   const { data:geoData, refetch:refetchGeoData } = useReverseGeocod();
   useEffect(() => {
@@ -28,7 +28,7 @@ export default function Home() {
     }
   }, [geoData, setCountryNm])
 
-  const { data:CovidDataHook, refetch:refetchCovidData } = useGetCovidData();
+  const { data:CovidDataHook, refetch:refetchCovidData, isFetching } = useGetCovidData();
   useEffect(() => {
     if(CovidDataHook){
       console.log(CovidDataHook);
@@ -81,8 +81,14 @@ export default function Home() {
     }
   }, [mapClicked, refetchGeoData])
 
+  useEffect(() => {
+    if(latestTotalApiData) {
+      setCountryPercentage(((parseInt(latestTotalApiData) * 100) / 704753890).toFixed(2).toString());
+    }
+  }, [latestTotalApiData])
+
   const formatData = (data: string) => {
-    let arrAux1: string[] = []; const arrAux2: string[] = []; let indexAux = 1; //[[10],[549],[876]]
+    let arrAux1: string[] = []; const arrAux2: string[] = []; let indexAux = 1; 
     for(let i = (data.length - 1); i >= 0; i--) {
       arrAux1.push(data[i]);
 
@@ -103,45 +109,58 @@ export default function Home() {
   }
 
 
+
   return (
     <main className="flex min-h-screen flex-col items-center px-16 py-5">
         <h1 className="text-2xl py-5">Dashboard COVID-19</h1>
         <div className="w-full h-full rounded-lg">
             <DynamicMap/>
-            <p>{countryNm}</p>
+            <h2 className="font-semibold text-lg text-center pt-5">Infected People</h2>
             <div className="w-full h-full flex justify-around">
-              <div className='w-[18rem] h-[12rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-5'>
-                <h2 className='text-lg'>Global</h2>
-                {
-                  latestTotalApiData ? (
-                  <>
-                      <p className='text-2xl'>775.867.547</p>
-                      <p className='text-[0.6rem]'>*Última atualização 08/2024</p>
-                  </>
-                  ) : (<span className="loader"></span>)
-                }
+              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-6'>
+                <h2 className='text-lg pt-6 text-center'>Global</h2>
+                <div className="w-[18rem] h-[7rem]  flex flex-col items-center gap-5">
+                  {
+                    isFetching ? (
+                        <span className="loader"></span>
+                    ) : (
+                      <>
+                        <p className='text-2xl'>704.753.890</p>
+                        <p className='text-[0.65rem] font-medium'>*Last Update 2023-03</p>
+                      </>
+                  )
+                  }
+                </div>
               </div>
-              <div className='w-[18rem] h-[12rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-5'>
-                <h2 className='text-lg'>{latestTotalApiData ? countryNm : "País"}</h2>
-                {
-                  latestTotalApiData ? (
-                  <>
+              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-6'>
+                <h2 className='text-lg pt-6 text-center'>{latestTotalApiData ? countryNm : "País"}</h2>
+                <div className="w-[18rem] h-[7rem]  flex flex-col items-center gap-5">
+                  {
+                    isFetching ? (
+                        <span className="loader"></span>
+                    ) : (
+                      <>
                       <p className='text-2xl'>{formatData(latestTotalApiData)}</p>
-                      <p className='text-[0.6rem]'>*Última atualização {lastApiUpdateDay}</p>
-                  </>
-                  ) : (<span className="loader"></span>)
-                }
+                      <p className='text-[0.65rem] font-medium'>*Last Update {lastApiUpdateDay}</p>
+                      </>
+                    )
+                  }
+                </div>
               </div>
-              <div className='w-[18rem] h-[12rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-5'>
-                <h2 className='text-lg'>{latestTotalApiData ? countryNm : "País"}</h2>
-                {
-                  latestTotalApiData ? (
-                  <>
-                      <p className='text-2xl'>{latestTotalApiData}</p>
-                      <p className='text-[0.6rem]'>*Última atualização {lastApiUpdateDay}</p>
-                  </>
-                  ) : (<span className="loader"></span>)
-                }
+              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-6'>
+                <h2 className='text-lg pt-6 text-center'>{latestTotalApiData ? countryNm : "País"}</h2>
+                <div className="w-[18rem] h-[7rem]  flex flex-col items-center gap-5">
+                  {
+                    isFetching ? (
+                      <span className="loader"></span>
+                    ) : (
+                      <>
+                        <p className='text-2xl'>{`${countryPercentage}%`}</p>
+                        <p className='text-[0.65rem] font-medium'>Percentage of Global Cases</p>
+                      </>
+                    )
+                  }
+                </div>
               </div>
               
             </div>
