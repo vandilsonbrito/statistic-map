@@ -21,3 +21,8 @@ export interface GeoJSONFeature {
     geometry: GeoJSON.Geometry;
     id?: string | number;
 }
+
+export interface Serie {
+    name: string,
+    data: number[]
+}
