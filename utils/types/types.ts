@@ -9,4 +9,15 @@ export interface Cases {
 export interface CaseData {
     new: string;
     total: string;
-  }
+}
+
+export interface FeatureProperties {
+    name: string;
+}
+
+export interface GeoJSONFeature {
+    type: 'Feature';
+    properties: FeatureProperties;
+    geometry: GeoJSON.Geometry;
+    id?: string | number;
+}
