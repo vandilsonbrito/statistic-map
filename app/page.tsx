@@ -1,11 +1,12 @@
 'use client';
 import { useReverseGeocod } from "@/hooks/useReverseGeocod";
 import { useGetCovidData } from "@/hooks/useGetCovidData";
-import { latAtom, lngAtom, isMapClickedAtom, countryName, covidDataFetched, latestDay, dataLatestDay } from "@/utils/stores/atoms";
+import { isMapClickedAtom, countryName, covidDataFetched, latestDay, dataLatestDay, casesData } from "@/utils/stores/atoms";
 import { useAtom } from "jotai";
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from "react";
 import { CaseData, DataFetched } from "@/utils/types/types";
+import Chart1 from "@/components/chart/Chart";
 
 const DynamicMap = dynamic(() => import('../components/map/Map'), {
     ssr: false
@@ -16,6 +17,7 @@ export default function Home() {
   const [mapClicked, setMapClicked] = useAtom(isMapClickedAtom);
   const [selectedCountry, setSelectedCountry] = useAtom(countryName);
   const [covidData, setCovidData] = useAtom(covidDataFetched);
+  const [covidCases, setCovidCases] = useAtom(casesData);
   const [lastApiUpdateDay, setLastApiUpdateDay] = useAtom(latestDay);
   const [latestTotalApiData, setLatestTotalApiData] = useAtom(dataLatestDay);
   const [countryPercentage, setCountryPercentage] = useState<string>('');
@@ -54,7 +56,8 @@ export default function Home() {
     if(covidData){
       let cases: CaseData[] = Object.keys(covidData).reduce((acc: CaseData[], key: string) => {
         const caseData = covidData[parseInt(key)]?.cases; // Acessa os casos do objeto
-    
+      
+        setCovidCases(caseData);
         if(caseData) {
           Object.keys(caseData).forEach(date => {
             if (date === lastApiUpdateDay) {
@@ -68,7 +71,7 @@ export default function Home() {
       const total: string = cases.reduce((acc: number, item) => acc + parseInt(item.total), 0).toString(); 
       setLatestTotalApiData(total);
 
-      console.log(cases);
+      console.log("Cases", cases);
       console.log(total);
     }
   }, [covidData, lastApiUpdateDay, setLatestTotalApiData])
@@ -165,7 +168,10 @@ export default function Home() {
               
             </div>
         </div>
-       
+        <div className="w-full h-full py-7">
+          <h2 className="text-lg pt-6 text-center font-semibold pb-10">Data Timeline</h2>
+          <Chart1/>
+        </div>
     </main>
   );
 }
