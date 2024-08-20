@@ -14,7 +14,7 @@ const DynamicMap = dynamic(() => import('../components/map/Map'), {
 export default function Home() {
 
   const [mapClicked, setMapClicked] = useAtom(isMapClickedAtom);
-  const [countryNm, setCountryNm] = useAtom(countryName);
+  const [selectedCountry, setSelectedCountry] = useAtom(countryName);
   const [covidData, setCovidData] = useAtom(covidDataFetched);
   const [lastApiUpdateDay, setLastApiUpdateDay] = useAtom(latestDay);
   const [latestTotalApiData, setLatestTotalApiData] = useAtom(dataLatestDay);
@@ -24,9 +24,9 @@ export default function Home() {
   useEffect(() => {
     if(geoData) {
       console.log(geoData?.address?.country);
-      setCountryNm(geoData?.address?.country)
+      setSelectedCountry(geoData?.address?.country)
     }
-  }, [geoData, setCountryNm])
+  }, [geoData, setSelectedCountry])
 
   const { data:CovidDataHook, refetch:refetchCovidData, isFetching } = useGetCovidData();
   useEffect(() => {
@@ -133,7 +133,7 @@ export default function Home() {
                 </div>
               </div>
               <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-6'>
-                <h2 className='text-lg pt-6 text-center'>{latestTotalApiData ? countryNm : "País"}</h2>
+                <h2 className='text-lg pt-6 text-center'>{latestTotalApiData ? selectedCountry : "País"}</h2>
                 <div className="w-[18rem] h-[7rem]  flex flex-col items-center gap-5">
                   {
                     isFetching ? (
@@ -148,7 +148,7 @@ export default function Home() {
                 </div>
               </div>
               <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-6'>
-                <h2 className='text-lg pt-6 text-center'>{latestTotalApiData ? countryNm : "País"}</h2>
+                <h2 className='text-lg pt-6 text-center'>{latestTotalApiData ? selectedCountry : "País"}</h2>
                 <div className="w-[18rem] h-[7rem]  flex flex-col items-center gap-5">
                   {
                     isFetching ? (
@@ -165,7 +165,7 @@ export default function Home() {
               
             </div>
         </div>
-
+       
     </main>
   );
 }
