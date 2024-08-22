@@ -1,13 +1,13 @@
 'use client'
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
-import { covidDataFetched, casesData, latestDay} from "@/utils/stores/atoms";
+import { covidCasesDataFetched, casesData, latestDay} from "@/utils/stores/atoms";
 import Chart from "react-apexcharts";
 import { Serie } from "@/utils/types/types";
 
-function Chart1() {
+function CasesChart() {
 
-    const [covidData] = useAtom(covidDataFetched);
+    const [covidData] = useAtom(covidCasesDataFetched);
     const [covidCases] = useAtom(casesData);
     const [lastApiUpdateDay] = useAtom(latestDay);
     const [dates, setDates] = useState<string[]>([]);
@@ -16,6 +16,7 @@ function Chart1() {
     const [series, setSeries] = useState<Serie[]>([]);
 
     useEffect(() => {
+        console.log("COVIDCASES", covidCases)
 
         //setDates(Object.keys(covidCases).map((item) => item))
         //setCasesMonthly(Object.values(covidCases).map((item) => Number(item.total)));
@@ -28,12 +29,11 @@ function Chart1() {
                 
                 // Pegar valor total quando virar o mês e colocar no array
                 if(key.at(6) !== nextDateString.at(6)) {
-                    console.log(`Data: ${key}`);
-                    console.log("CovidCasesTotal", covidCases[key]?.total);
+                    //console.log(`Data: ${key}`);
+                    //console.log("CovidCasesTotal", covidCases[key]?.total);
                     arrAux1.push(key);
                     arrAux2.push(Number(covidCases[key].total));
 
-                    console.log("Mudou de mês")
                 }
             }
             //Adding last month of api update | 2023-03-09
@@ -47,6 +47,13 @@ function Chart1() {
 
     }, [covidCases, lastApiUpdateDay])
 
+    const formatNumber = (value: number) => {
+        if (value >= 100000) {
+          return `${(value / 100000).toFixed(0)}k`;
+        }
+        return value.toString(); 
+    };
+
     useEffect(() => {
         setOptions({
             chart: {
@@ -54,6 +61,13 @@ function Chart1() {
             },  
             xaxis: {
               categories: dates
+            },
+            yaxis: {
+                labels: {
+                  formatter: (value: number) => {
+                    return formatNumber(value);
+                  },
+                },
             }
           });
         
@@ -64,27 +78,23 @@ function Chart1() {
             }
           ]);
 
-          console.log("Dates", dates);
-          console.log("CasesMonthly", casesMonthly);
     }, [casesMonthly, dates])
 
     
     
       return (
-        <div className="w-[700px] flex justify-center items-center shadow-xl rounded-md">
+        <div className="w-[600px] flex justify-center items-center shadow-xl rounded-md bg-white">
             <div>
                 {
                     (dates && casesMonthly) &&
                     (
-                        <div className="w-full h-full flex relative">
-                            <div className="w-[150px] flex flex-col-reverse justify-center absolute top-32 -left-20 ">
-                                <p className="-rotate-90">Number of Cases</p>
-                            </div>
+                        <div className="w-full h-full flex flex-col justify-center items-center pt-3">
+                            <p className="">Number of Cases</p> 
                             <Chart
                                 options={options}
                                 series={series}
                                 type="line"
-                                width="600"
+                                width="550"
                             />
                         </div>
                     )
@@ -94,4 +104,4 @@ function Chart1() {
       );
 }
 
-export default Chart1
+export default CasesChart
