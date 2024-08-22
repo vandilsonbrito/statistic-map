@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { countryName } from "@/utils/stores/atoms";
 import { useAtom } from "jotai";
 
-export function useGetCovidData() {
+export function useGetCovidCasesData() {
     const API_NINJAS_KEY = process.env.NEXT_PUBLIC_API_NINJAS_KEY as string;
 
     const [countryNm] = useAtom(countryName);
@@ -18,13 +18,13 @@ export function useGetCovidData() {
             return data
         }
         catch(error) {
-            console.error("Error fetching Covid data", error)
+            console.error("Error fetching cases Covid data", error)
         } 
     }
 
     const query = useQuery({
         queryFn: fetchCovidData,
-        queryKey: ['covid-data', countryNm],
+        queryKey: ['cases-covid-data', countryNm],
         enabled: !!countryNm
     })
     return query
