@@ -1,7 +1,6 @@
-export interface DataFetched {
+export interface CasesDataFetched {
     cases: Cases
 }
-
 export interface Cases {
     [date: string]: CaseData
 }
@@ -9,6 +8,11 @@ export interface Cases {
 export interface CaseData {
     new: string;
     total: string;
+}
+export interface DeathsDataFetched{
+    deaths: {
+        [date: string]: CaseData;
+    };
 }
 
 export interface FeatureProperties {
