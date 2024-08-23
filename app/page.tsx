@@ -1,5 +1,4 @@
 'use client';
-import { useReverseGeocod } from "@/hooks/useReverseGeocod";
 import { useGetCovidData } from "@/hooks/useGetCovidData";
 import { isMapClickedAtom, countryName, covidDataFetched, latestDay, dataLatestDay, casesData } from "@/utils/stores/atoms";
 import { useAtom } from "jotai";
@@ -28,11 +27,7 @@ export default function Home() {
   const [latestTotalApiData, setLatestTotalApiData] = useAtom(dataLatestDay);
   const [countryPercentage, setCountryPercentage] = useState<string>('');
 
-  const { data:geoData, refetch:refetchGeoData } = useReverseGeocod();
   useEffect(() => {
-    if(geoData) {
-      console.log(geoData?.address?.country);
-      setSelectedCountry(geoData?.address?.country)
     }
   }, [geoData, setSelectedCountry])
 
