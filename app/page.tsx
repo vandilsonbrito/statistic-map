@@ -54,22 +54,23 @@ export default function Home() {
   }, [covidData, setLastApiUpdateDay])
 
   useEffect(() => {
-    if(covidData){
-      let cases: CaseData[] = Object.keys(covidData).reduce((acc: CaseData[], key: string) => {
-        const caseData = covidData[parseInt(key)]?.cases; // Acessa os casos do objeto
-      
-        setCovidCases(caseData);
+    if(covidCasesData){
+      let casesRegions: Cases[] = [];
+      let cases: CaseData[] = Object.keys(covidCasesData).reduce((acc: CaseData[], key: string) => {
+        const caseData = covidCasesData[parseInt(key)]?.cases; // Acessa os casos do objeto
+        
+        casesRegions.push(caseData);
         if(caseData) {
           Object.keys(caseData).forEach(date => {
-            if (date === lastApiUpdateDay) {
-              acc.push(caseData[date]); // Adiciona os casos ao acumulador
+            if(date === lastApiUpdateDay) {
+              acc.push(caseData[date]); // Adiciona o total de casos do útlinmo dia do mês ao acumulador
             }
           });
         }
         return acc; // Retorna o acumulador
       }, []);
+      setCovidCases(casesRegions);
 
-      const total: string = cases.reduce((acc: number, item) => acc + parseInt(item.total), 0).toString(); 
       setLatestTotalApiData(total);
 
       console.log("Cases", cases);
