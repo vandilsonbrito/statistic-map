@@ -120,13 +120,13 @@ export default function Home() {
 
 
   return (
-    <main className="flex min-h-screen flex-col items-center px-16 py-5">
+    <main className="flex min-h-screen flex-col items-center px-16 py-5 bg-[#fdfdfc]">
         <h1 className="text-2xl py-5">Dashboard COVID-19</h1>
         <div className="w-full h-full rounded-lg">
             <DynamicMap/>
             <h2 className="font-semibold text-lg text-center pt-5">Infected People</h2>
             <div className="w-full h-full flex justify-around">
-              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-6'>
+              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-6 bg-white'>
                 <h2 className='text-lg pt-6 text-center'>Global</h2>
                 <div className="w-[18rem] h-[7rem]  flex flex-col items-center gap-5">
                   {
@@ -141,7 +141,7 @@ export default function Home() {
                   }
                 </div>
               </div>
-              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-6'>
+              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-6 bg-white'>
                 <h2 className='text-lg pt-6 text-center'>{latestTotalApiData ? selectedCountry : "País"}</h2>
                 <div className="w-[18rem] h-[7rem]  flex flex-col items-center gap-5">
                   {
@@ -156,7 +156,7 @@ export default function Home() {
                   }
                 </div>
               </div>
-              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-6'>
+              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-6 bg-white'>
                 <h2 className='text-lg pt-6 text-center'>{latestTotalApiData ? selectedCountry : "País"}</h2>
                 <div className="w-[18rem] h-[7rem]  flex flex-col items-center gap-5">
                   {
