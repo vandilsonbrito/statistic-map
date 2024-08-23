@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.51.23",
+    "apexcharts": "^3.52.0",
     "jotai": "^2.9.3",
     "leaflet": "^1.9.4",
     "next": "14.2.5",
     "react": "^18",
+    "react-apexcharts": "^1.4.1",
     "react-dom": "^18",
     "react-leaflet": "^4.2.1"
   },

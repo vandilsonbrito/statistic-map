@@ -1,85 +1,94 @@
 'use client';
-import { useReverseGeocod } from "@/hooks/useReverseGeocod";
-import { useGetCovidData } from "@/hooks/useGetCovidData";
-import { latAtom, lngAtom, isMapClickedAtom, countryName, covidDataFetched, latestDay, dataLatestDay } from "@/utils/stores/atoms";
+import { useGetCovidCasesData } from "@/hooks/useGetCovidCasesData";
+import { isMapClickedAtom, countryName, covidCasesDataFetched, covidDeathsDataFetched, latestDay, dataLatestDay, casesData } from "@/utils/stores/atoms";
 import { useAtom } from "jotai";
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from "react";
-import { CaseData, DataFetched } from "@/utils/types/types";
+import { CaseData, Cases } from "@/utils/types/types";
+import { useGetCovidDeathsData } from "@/hooks/useGetCovidDeathsData";
 
 const DynamicMap = dynamic(() => import('../components/map/Map'), {
-    ssr: false
+  ssr: false
+});
+const CasesChart = dynamic(() => import('../components/charts/CasesChart'), {
+  ssr: false
+});
+const DeathsChart = dynamic(() => import('../components/charts/DeathsChart'), {
+  ssr: false
 });
 
 export default function Home() {
 
   const [mapClicked, setMapClicked] = useAtom(isMapClickedAtom);
-  const [selectedCountry, setSelectedCountry] = useAtom(countryName);
-  const [covidData, setCovidData] = useAtom(covidDataFetched);
+  const [selectedCountry] = useAtom(countryName);
+  const [covidCasesData, setCovidCasesData] = useAtom(covidCasesDataFetched);
+  const [CovidDeathsData, setCovidDeathsData] = useAtom(covidDeathsDataFetched);
+  const [covidCases, setCovidCases] = useAtom(casesData);
   const [lastApiUpdateDay, setLastApiUpdateDay] = useAtom(latestDay);
   const [latestTotalApiData, setLatestTotalApiData] = useAtom(dataLatestDay);
   const [countryPercentage, setCountryPercentage] = useState<string>('');
 
-  const { data:geoData, refetch:refetchGeoData } = useReverseGeocod();
-  useEffect(() => {
-    if(geoData) {
-      console.log(geoData?.address?.country);
-      setSelectedCountry(geoData?.address?.country)
-    }
-  }, [geoData, setSelectedCountry])
 
-  const { data:CovidDataHook, refetch:refetchCovidData, isFetching } = useGetCovidData();
+  const { data:CovidCasesDataHook, refetch:refetchCovidCasesData, isFetching } = useGetCovidCasesData();
   useEffect(() => {
-    if(CovidDataHook){
-      console.log(CovidDataHook);
-      setCovidData(CovidDataHook);
+    if(CovidCasesDataHook){
+      setCovidCasesData(CovidCasesDataHook);
     }
-  }, [CovidDataHook, setCovidData])
+  }, [CovidCasesDataHook, setCovidCasesData])
+
+  const { data:CovidDeathsDataHook, refetch:refetchCovidDeathsData } = useGetCovidDeathsData();
+  useEffect(() => {
+    console.log("CovidDeathsDataHook", CovidDeathsDataHook);
+    setCovidDeathsData(CovidDeathsDataHook)
+  }, [CovidDeathsDataHook, setCovidDeathsData])
 
   useEffect(() => {
-    if(covidData) {
+    if(covidCasesData) {
       let latestDay: string;
       let arr = [];
-      for(const key in covidData) {
-        for(const key2 in covidData[key].cases) {
+      for(const key in covidCasesData) {
+        for(const key2 in covidCasesData[key].cases) {
           arr.push(key2)
         }
       }
       latestDay = arr.pop() as string;
       setLastApiUpdateDay(latestDay);
     }
-  }, [covidData, setLastApiUpdateDay])
+  }, [covidCasesData, setLastApiUpdateDay])
 
   useEffect(() => {
-    if(covidData){
-      let cases: CaseData[] = Object.keys(covidData).reduce((acc: CaseData[], key: string) => {
-        const caseData = covidData[parseInt(key)]?.cases; // Acessa os casos do objeto
-    
+    if(covidCasesData){
+      let casesRegions: Cases[] = [];
+      let cases: CaseData[] = Object.keys(covidCasesData).reduce((acc: CaseData[], key: string) => {
+        const caseData = covidCasesData[parseInt(key)]?.cases; // Acessa os casos do objeto
+        
+        casesRegions.push(caseData);
         if(caseData) {
           Object.keys(caseData).forEach(date => {
-            if (date === lastApiUpdateDay) {
-              acc.push(caseData[date]); // Adiciona os casos ao acumulador
+            if(date === lastApiUpdateDay) {
+              acc.push(caseData[date]); // Adiciona o total de casos do útlinmo dia do mês ao acumulador
             }
           });
         }
         return acc; // Retorna o acumulador
       }, []);
+      setCovidCases(casesRegions);
 
-      const total: string = cases.reduce((acc: number, item) => acc + parseInt(item.total), 0).toString(); 
+      let total: string = cases.reduce((acc: number, item) => acc + parseInt(item.total), 0).toString(); 
       setLatestTotalApiData(total);
 
-      console.log(cases);
-      console.log(total);
+      /* console.log("Cases", cases);
+      console.log(total); */
     }
-  }, [covidData, lastApiUpdateDay, setLatestTotalApiData])
+  }, [covidCasesData, lastApiUpdateDay, setCovidCases, setLatestTotalApiData])
 
   useEffect(() => {
     if(mapClicked) {
-      refetchGeoData();
-      refetchCovidData();
+      refetchCovidCasesData();
+      refetchCovidDeathsData();
       setMapClicked(false);
     }
-  }, [mapClicked, refetchGeoData])
+  }, [mapClicked, refetchCovidCasesData, refetchCovidDeathsData])
 
   useEffect(() => {
     if(latestTotalApiData) {
@@ -111,13 +120,13 @@ export default function Home() {
 
 
   return (
-    <main className="flex min-h-screen flex-col items-center px-16 py-5">
+    <main className="flex min-h-screen flex-col items-center px-16 py-5 bg-[#fdfdfc]">
         <h1 className="text-2xl py-5">Dashboard COVID-19</h1>
         <div className="w-full h-full rounded-lg">
             <DynamicMap/>
             <h2 className="font-semibold text-lg text-center pt-5">Infected People</h2>
             <div className="w-full h-full flex justify-around">
-              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-6'>
+              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-6 bg-white'>
                 <h2 className='text-lg pt-6 text-center'>Global</h2>
                 <div className="w-[18rem] h-[7rem]  flex flex-col items-center gap-5">
                   {
@@ -132,7 +141,7 @@ export default function Home() {
                   }
                 </div>
               </div>
-              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-6'>
+              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-6 bg-white'>
                 <h2 className='text-lg pt-6 text-center'>{latestTotalApiData ? selectedCountry : "País"}</h2>
                 <div className="w-[18rem] h-[7rem]  flex flex-col items-center gap-5">
                   {
@@ -147,7 +156,7 @@ export default function Home() {
                   }
                 </div>
               </div>
-              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-6'>
+              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-6 bg-white'>
                 <h2 className='text-lg pt-6 text-center'>{latestTotalApiData ? selectedCountry : "País"}</h2>
                 <div className="w-[18rem] h-[7rem]  flex flex-col items-center gap-5">
                   {
@@ -165,7 +174,13 @@ export default function Home() {
               
             </div>
         </div>
-       
+        <div className="w-full h-full py-7">
+          <h2 className="text-lg pt-6 text-center font-semibold pb-10">Data Timeline</h2>
+          <div className="w-full flex flex-col lg:flex-row justify-center items-center gap-10">
+            <CasesChart/>
+            <DeathsChart/>
+          </div>
+        </div>
     </main>
   );
 }
