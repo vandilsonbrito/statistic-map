@@ -24,4 +24,5 @@ Pude aprender praticando, Jotai, que é um State Management basead em átomos. T
 
 
 <h2>Demo</h2>
-[Link-Projeto](https://dasboard-covid-19.vercel.app/)
+
+[link-projeto](https://dasboard-covid-19.vercel.app/)
