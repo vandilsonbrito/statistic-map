@@ -17,24 +17,30 @@ function DeathsChart() {
 
     useEffect(() => {
         if(covidDeathsData) {
-            const auxVar: Cases = {};
+            const arrCovidDeaths = covidDeathsData.map(item => item.deaths);
+            let arrSummedValuesPerDates: number[] = [];
+            const totalCovidDeathsPerDays: Cases = {};
 
-            covidDeathsData.forEach((item) => {
-                for (const date in item.deaths) {
-                  // Acessa os dados de mortes para cada data
-                  auxVar[date] = {
-                    new: item.deaths[date].new,
-                    total: item.deaths[date].total,
-                  };
-                }
-              });
-            setCovidDeaths(auxVar);
+            if(typeof arrCovidDeaths[0] === 'object') {
+
+                const dates = Object.keys(arrCovidDeaths[0]).map(date => date);
+                const arrValuesPerDates = dates.map(date => arrCovidDeaths.map(item => Number(item?.[date]?.total)));
+                arrSummedValuesPerDates = arrValuesPerDates.map(item => item.reduce((acc, value) => acc + value, 0));
+                //console.log("arrSummedValuesPerDates", arrSummedValuesPerDates)
+    
+                dates.forEach(date => {
+                    totalCovidDeathsPerDays[date] = {new: '0', total: (arrSummedValuesPerDates[dates.indexOf(date)]).toString()};
+                })
+                  
+                setCovidDeaths(totalCovidDeathsPerDays);
+            }
         }
         
+
     }, [covidDeathsData])
 
     useEffect(() => {
-        console.log("covidDeathsSSSSSSS", covidDeaths)
+        
     
         const setDataForChart = () => {
             if(covidDeaths) {
@@ -47,8 +53,8 @@ function DeathsChart() {
                     
                     // Pegar valor total quando virar o mês e colocar no array
                     if(key.at(6) !== nextDateString.at(6)) {
-                        console.log(`Data: ${key}`);
-                        console.log("CovidDeathsTotal", covidDeaths[key]?.total);
+                        /* console.log(`Data: ${key}`);
+                        console.log("CovidDeathsTotal", covidDeaths[key]?.total); */
                         arrAux1.push(key);
                         arrAux2.push(Number(covidDeaths[key]?.total));
 
@@ -67,8 +73,14 @@ function DeathsChart() {
     }, [covidDeaths, covidDeathsData, lastApiUpdateDay]);
 
     const formatNumber = (value: number) => {
-        if (value >= 10000) {
-          return `${(value / 10000).toFixed(0)}k`;
+        if(value >= 1000000) {
+            return (value / 1000000).toFixed(1) + 'M'
+        }
+        else if (value >= 100000) {
+          return `${(value / 1000).toFixed(0)}k`;
+        }
+        else if (value >= 1000) {
+            return `${(value / 1000).toFixed(0)}k`;
         }
         return value.toString(); 
     };
@@ -100,25 +112,30 @@ function DeathsChart() {
  
     }, [casesMonthly, dates])
 
-    
+    /* console.log("dates && casesMonthly", dates && casesMonthly) */
     
       return (
         <div className="w-[600px] flex justify-center items-center shadow-xl rounded-md bg-white">
             <div>
-                {
-                    (dates && casesMonthly) &&
-                    (
-                        <div className="w-full h-full flex flex-col justify-center items-center pt-3">
-                            <p className="">Number of Deaths</p>
+                <div className="w-full h-full min-h-[390px] flex flex-col justify-center items-center pt-3">
+                    <p className="">Number of Deaths</p>
+                    {
+                        covidDeathsData?.length > 0 ?
+                        (                      
                             <Chart
                                 options={options}
                                 series={series}
                                 type="line"
                                 width="550"
-                            />
-                        </div>
-                    )
-                }
+                            />   
+                        ) : (
+                            <div className="h-[370px] flex justify-center items-center text-slate-600">
+                                <p>No data available</p>
+                            </div>
+                        )
+                    }
+                    
+                </div>
             </div>
         </div>
       );
