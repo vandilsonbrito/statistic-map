@@ -9,7 +9,13 @@ import { CaseData, DataFetched } from "@/utils/types/types";
 import Chart1 from "@/components/chart/Chart";
 
 const DynamicMap = dynamic(() => import('../components/map/Map'), {
-    ssr: false
+  ssr: false
+});
+const CasesChart = dynamic(() => import('../components/charts/CasesChart'), {
+  ssr: false
+});
+const DeathsChart = dynamic(() => import('../components/charts/DeathsChart'), {
+  ssr: false
 });
 
 export default function Home() {
@@ -170,7 +176,10 @@ export default function Home() {
         </div>
         <div className="w-full h-full py-7">
           <h2 className="text-lg pt-6 text-center font-semibold pb-10">Data Timeline</h2>
-          <Chart1/>
+          <div className="w-full flex flex-col lg:flex-row justify-center items-center gap-10">
+            <CasesChart/>
+            <DeathsChart/>
+          </div>
         </div>
     </main>
   );

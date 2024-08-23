@@ -19,7 +19,7 @@ function Map() {
         const fetchGeojson = async () => {
             const response = await fetch('/globe.geo.json');
             const data = await response.json();
-            console.log("DADOS", data)
+            
             setGeojsonData(data);
         }
         fetchGeojson();
@@ -33,7 +33,6 @@ function Map() {
           }
         });
       };
-
       
     const style = (feature?: GeoJSONFeature): PathOptions => {
         if (!feature) {
