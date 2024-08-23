@@ -1,11 +1,11 @@
 'use client';
-import { useGetCovidData } from "@/hooks/useGetCovidData";
-import { isMapClickedAtom, countryName, covidDataFetched, latestDay, dataLatestDay, casesData } from "@/utils/stores/atoms";
+import { useGetCovidCasesData } from "@/hooks/useGetCovidCasesData";
+import { isMapClickedAtom, countryName, covidCasesDataFetched, covidDeathsDataFetched, latestDay, dataLatestDay, casesData } from "@/utils/stores/atoms";
 import { useAtom } from "jotai";
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from "react";
-import { CaseData, DataFetched } from "@/utils/types/types";
-import Chart1 from "@/components/chart/Chart";
+import { CaseData, Cases } from "@/utils/types/types";
+import { useGetCovidDeathsData } from "@/hooks/useGetCovidDeathsData";
 
 const DynamicMap = dynamic(() => import('../components/map/Map'), {
   ssr: false
@@ -20,38 +20,41 @@ const DeathsChart = dynamic(() => import('../components/charts/DeathsChart'), {
 export default function Home() {
 
   const [mapClicked, setMapClicked] = useAtom(isMapClickedAtom);
-  const [selectedCountry, setSelectedCountry] = useAtom(countryName);
-  const [covidData, setCovidData] = useAtom(covidDataFetched);
+  const [selectedCountry] = useAtom(countryName);
+  const [covidCasesData, setCovidCasesData] = useAtom(covidCasesDataFetched);
+  const [CovidDeathsData, setCovidDeathsData] = useAtom(covidDeathsDataFetched);
   const [covidCases, setCovidCases] = useAtom(casesData);
   const [lastApiUpdateDay, setLastApiUpdateDay] = useAtom(latestDay);
   const [latestTotalApiData, setLatestTotalApiData] = useAtom(dataLatestDay);
   const [countryPercentage, setCountryPercentage] = useState<string>('');
 
-  useEffect(() => {
-    }
-  }, [geoData, setSelectedCountry])
 
-  const { data:CovidDataHook, refetch:refetchCovidData, isFetching } = useGetCovidData();
+  const { data:CovidCasesDataHook, refetch:refetchCovidCasesData, isFetching } = useGetCovidCasesData();
   useEffect(() => {
-    if(CovidDataHook){
-      console.log(CovidDataHook);
-      setCovidData(CovidDataHook);
+    if(CovidCasesDataHook){
+      setCovidCasesData(CovidCasesDataHook);
     }
-  }, [CovidDataHook, setCovidData])
+  }, [CovidCasesDataHook, setCovidCasesData])
+
+  const { data:CovidDeathsDataHook, refetch:refetchCovidDeathsData } = useGetCovidDeathsData();
+  useEffect(() => {
+    console.log("CovidDeathsDataHook", CovidDeathsDataHook);
+    setCovidDeathsData(CovidDeathsDataHook)
+  }, [CovidDeathsDataHook, setCovidDeathsData])
 
   useEffect(() => {
-    if(covidData) {
+    if(covidCasesData) {
       let latestDay: string;
       let arr = [];
-      for(const key in covidData) {
-        for(const key2 in covidData[key].cases) {
+      for(const key in covidCasesData) {
+        for(const key2 in covidCasesData[key].cases) {
           arr.push(key2)
         }
       }
       latestDay = arr.pop() as string;
       setLastApiUpdateDay(latestDay);
     }
-  }, [covidData, setLastApiUpdateDay])
+  }, [covidCasesData, setLastApiUpdateDay])
 
   useEffect(() => {
     if(covidCasesData){
@@ -71,20 +74,21 @@ export default function Home() {
       }, []);
       setCovidCases(casesRegions);
 
+      let total: string = cases.reduce((acc: number, item) => acc + parseInt(item.total), 0).toString(); 
       setLatestTotalApiData(total);
 
-      console.log("Cases", cases);
-      console.log(total);
+      /* console.log("Cases", cases);
+      console.log(total); */
     }
-  }, [covidData, lastApiUpdateDay, setLatestTotalApiData])
+  }, [covidCasesData, lastApiUpdateDay, setCovidCases, setLatestTotalApiData])
 
   useEffect(() => {
     if(mapClicked) {
-      refetchGeoData();
-      refetchCovidData();
+      refetchCovidCasesData();
+      refetchCovidDeathsData();
       setMapClicked(false);
     }
-  }, [mapClicked, refetchGeoData])
+  }, [mapClicked, refetchCovidCasesData, refetchCovidDeathsData])
 
   useEffect(() => {
     if(latestTotalApiData) {
