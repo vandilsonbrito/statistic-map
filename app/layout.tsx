@@ -7,8 +7,8 @@ import { JotaiProvider } from "@/utils/providers/JotaiProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Statistic Map",
-  description: "Statistic Map with Dashboard",
+  title: "Dashboard COVID-19",
+  description: "Dashboard with map showing globe statistics about COVID-19",
 };
 
 export default function RootLayout({
