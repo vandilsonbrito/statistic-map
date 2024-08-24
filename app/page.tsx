@@ -135,7 +135,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center px-4 sm:px-8 lg:px-16 py-5 bg-[#f5f5f2]">
         <h1 className="text-2xl pt-2 pb-5 font-medium">Dashboard COVID-19</h1>
-        <div className="w-full h-full rounded-lg">
+        <div className="w-full max-w-[1500px] h-full rounded-lg">
             <DynamicMap/>
             <h2 className="font-semibold text-lg text-center pt-5">Infected People</h2>
             <div className="w-full h-full flex flex-col gap-3 lg:flex-row lg:justify-around items-center pt-1 pb-3">
@@ -188,9 +188,9 @@ export default function Home() {
               
             </div>
         </div>
-        <div className="w-full h-full py-7">
+        <div className="w-full h-full flex flex-col justify-center items-center py-7">
           <h2 className="text-lg pt-6 text-center font-semibold pb-10">Data Timeline</h2>
-          <div className="w-full flex flex-col xl:flex-row justify-center items-center gap-10">
+          <div className="w-full max-w-[1500px] flex flex-col xl:flex-row justify-center items-center gap-10">
             <CasesChart/>
             <DeathsChart/>
           </div>
