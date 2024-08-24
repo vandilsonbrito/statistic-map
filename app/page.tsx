@@ -195,6 +195,9 @@ export default function Home() {
             <DeathsChart/>
           </div>
         </div>
+        <footer className="pt-3 pb-2">
+            <p className="text-sm md:text-base">Developed by <a target="_blank" className="underline" href="https://vandilson-portfolio.vercel.app/">Vandilson Brito</a></p>
+        </footer>
     </main>
   );
 }
