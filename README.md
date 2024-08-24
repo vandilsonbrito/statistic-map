@@ -16,7 +16,7 @@ A pandemia de COVID-19 foi algo que assolou nosso planeta por mais de dois anos.
 
 <h2>Acquired Experience</h2>
 
-Pude aprender praticando, Jotai, que é um State Management basead em átomos. Também foi minha primeira experiência utilizando mapas e gráficos dentro da aplicação. Além de poder entender mais sobre TypeScript e a importância na criação de interfaces e tipos para tipar os estados e variáveis.
+Pude aprender praticando, Jotai, que é um State Management e utiliza átomos como unidades básicas de estado (cada átomo é uma peça independente de estado que pode ser lida e atualizada). Também foi minha primeira experiência utilizando mapas e gráficos dentro da aplicação. Além de poder entender mais sobre TypeScript e a importância na criação de interfaces e tipos para tipar os estados e variáveis.
 
 <h2>Exibition</h2>
 
