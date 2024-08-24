@@ -1,6 +1,6 @@
 'use client';
 import { useGetCovidCasesData } from "@/hooks/useGetCovidCasesData";
-import { isMapClickedAtom, countryName, covidCasesDataFetched, covidDeathsDataFetched, latestDay, dataLatestDay, casesData } from "@/utils/stores/atoms";
+import { isMapClickedAtom, countryName, covidCasesDataFetched, covidDeathsDataFetched, latestDay, dataLatestDay, casesData, isFetchingCasesDataAtom, isFetchingDeathsDataAtom } from "@/utils/stores/atoms";
 import { useAtom } from "jotai";
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from "react";
@@ -21,6 +21,8 @@ export default function Home() {
 
   const [mapClicked, setMapClicked] = useAtom(isMapClickedAtom);
   const [selectedCountry] = useAtom(countryName);
+  const [isFetchingCasesData, setIsFetchingCasesData] = useAtom(isFetchingCasesDataAtom);
+  const [isFetchingDeathsData, setIsFetchingDeathsData] = useAtom(isFetchingDeathsDataAtom);
   const [covidCasesData, setCovidCasesData] = useAtom(covidCasesDataFetched);
   const [CovidDeathsData, setCovidDeathsData] = useAtom(covidDeathsDataFetched);
   const [covidCases, setCovidCases] = useAtom(casesData);
@@ -29,18 +31,30 @@ export default function Home() {
   const [countryPercentage, setCountryPercentage] = useState<string>('');
 
 
-  const { data:CovidCasesDataHook, refetch:refetchCovidCasesData, isFetching } = useGetCovidCasesData();
   useEffect(() => {
     if(CovidCasesDataHook){
       setCovidCasesData(CovidCasesDataHook);
     }
   }, [CovidCasesDataHook, setCovidCasesData])
 
-  const { data:CovidDeathsDataHook, refetch:refetchCovidDeathsData } = useGetCovidDeathsData();
+  const { data:CovidDeathsDataHook, refetch:refetchCovidDeathsData, isFetching: isFetchingDeathsDataHook } = useGetCovidDeathsData();
   useEffect(() => {
     console.log("CovidDeathsDataHook", CovidDeathsDataHook);
     setCovidDeathsData(CovidDeathsDataHook)
   }, [CovidDeathsDataHook, setCovidDeathsData])
+
+  useEffect(()=> {
+    if(isFetchingCasesDataHook) {
+      setIsFetchingCasesData(true);
+    }
+    if(isFetchingDeathsDataHook) {
+      setIsFetchingDeathsData(true);
+    }
+    else {
+      setIsFetchingCasesData(false);
+      setIsFetchingDeathsData(false);
+    }
+  }, [isFetchingCasesDataHook, isFetchingDeathsDataHook, setIsFetchingCasesData, setIsFetchingDeathsData])
 
   useEffect(() => {
     if(covidCasesData) {
@@ -145,7 +159,7 @@ export default function Home() {
                 <h2 className='text-lg pt-6 text-center'>{latestTotalApiData ? selectedCountry : "País"}</h2>
                 <div className="w-[18rem] h-[7rem]  flex flex-col items-center gap-5">
                   {
-                    isFetching ? (
+                    isFetchingCasesDataHook ? (
                         <span className="loader"></span>
                     ) : (
                       <>
@@ -160,7 +174,7 @@ export default function Home() {
                 <h2 className='text-lg pt-6 text-center'>{latestTotalApiData ? selectedCountry : "País"}</h2>
                 <div className="w-[18rem] h-[7rem]  flex flex-col items-center gap-5">
                   {
-                    isFetching ? (
+                    isFetchingCasesDataHook ? (
                       <span className="loader"></span>
                     ) : (
                       <>
