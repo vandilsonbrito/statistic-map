@@ -1,9 +1,10 @@
 'use client'
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
-import { covidCasesDataFetched, casesData, latestDay} from "@/utils/stores/atoms";
+import { covidCasesDataFetched, casesData, latestDay, isFetchingCasesDataAtom} from "@/utils/stores/atoms";
 import Chart from "react-apexcharts";
 import { Cases, Serie } from "@/utils/types/types";
+import useMedia from 'use-media';
 
 function CasesChart() {
 
@@ -11,10 +12,12 @@ function CasesChart() {
     const [covidCases] = useAtom(casesData);
     //const [totalCovidCasesPerDay, setTotalCovidCasesPerDay] = useAtom(casesData);
     const [lastApiUpdateDay] = useAtom(latestDay);
+    const [isFetchingCasesData] = useAtom(isFetchingCasesDataAtom);
     const [dates, setDates] = useState<string[]>([]);
     const [casesMonthly, setCasesMonthly] = useState<number[]>([]);
     const [options, setOptions] = useState({});
     const [series, setSeries] = useState<Serie[]>([]);
+    const isMobile = useMedia({ maxWidth: '719px' });
 
     useEffect(() => {
         let totalCovidCasesPerDays: Cases = {};
@@ -67,8 +70,8 @@ function CasesChart() {
         else if (value >= 100000) {
             return `${(value / 1000).toFixed(0)}k`;
           }
-        else if (value < 100000) {
-            return `${(value / 1000).toFixed(0)}k`;
+        else if (value >= 1000) {
+            return `${(value / 1000).toFixed(1)}k`;
         }
         return value.toString(); 
     };
@@ -99,25 +102,32 @@ function CasesChart() {
 
     }, [casesMonthly, dates])
 
-    
-    
+
       return (
-        <div className="w-[600px] flex justify-center items-center shadow-xl rounded-md bg-white">
-            <div className="w-full h-full min-h-[390px] flex flex-col justify-center items-center pt-3">
+        <div className="w-[350px] md:w-[600px] flex justify-center items-center shadow-xl rounded-md bg-white">
+            <div className="w-full h-full min-h-[290px] md:min-h-[390px] flex flex-col justify-center items-center pt-3">
                     <p className="">Number of Cases</p>
                     {
-                        covidCases?.length > 0 ?
-                        (                      
-                            <Chart
-                                options={options}
-                                series={series}
-                                type="line"
-                                width="550"
-                            />   
-                        ) : (
-                            <div className="h-[370px] flex justify-center items-center text-slate-600">
-                                <p>No data available</p>
-                            </div>
+                        isFetchingCasesData ? (
+                          <div className={`${isMobile ? 'w-[350px]' : 'w-[550px]'} min-h-[290px] md:min-h-[300px] flex flex-col justify-center items-center`}>
+                            <span className="loader"></span>
+                          </div>
+                        )
+                        :
+                        (
+                          covidCases?.length > 0 ?
+                            (                      
+                                <Chart
+                                    options={options}
+                                    series={series}
+                                    type="line"
+                                    width={`${isMobile ? '350' : '550'}`}
+                                />   
+                            ) : (
+                                <div className="h-[370px] flex justify-center items-center text-slate-600">
+                                    <p>No data available</p>
+                                </div>
+                            )
                         )
                     }
                     

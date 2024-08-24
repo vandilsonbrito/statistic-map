@@ -6,6 +6,7 @@ import 'leaflet/dist/leaflet.css';
 import { useEffect, useState } from 'react';
 import { GeoJSONFeature, FeatureProperties } from '../../utils/types/types';
 import { Layer, PathOptions } from 'leaflet';
+import { FiSearch } from "react-icons/fi";
 
 
 function Map() {
@@ -27,6 +28,13 @@ function Map() {
     }, [])
 
     const onEachFeature = (feature: GeoJSONFeature, layer: Layer) => {
+        if (feature.properties && feature.properties.name) {
+            layer.bindTooltip(feature.properties.name, {
+                permanent: false, // O tooltip aparece apenas quando o usuário passa o mouse
+                direction: 'auto',
+            });
+        }
+
         layer.on({
           click: () => {
             setSelectedCountry(feature.properties.name);
@@ -61,20 +69,23 @@ function Map() {
     }
 
     return (
-        <MapContainer center={[21.505, -0.09]} zoom={2} scrollWheelZoom={true} className="w-full h-[350px] rounded-lg shadow-lg">
-            <MapEvents />
-            <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            {geojsonData && (
-                <GeoJSON
-                data={geojsonData}
-                style={style}
-                onEachFeature={onEachFeature}
+        <div className="relative">
+            <p className='absolute top-3 right-2 z-10 bg-[#aad3df] text-white font-semibold rounded-md p-2 text-xs sm:text-sm'>Click on the country to see the data</p>
+            <MapContainer center={[21.505, -0.09]} zoom={2} scrollWheelZoom={true} className="w-full h-[350px] rounded-lg shadow-lg z-0">
+                <MapEvents />
+                <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-            )}
+                {geojsonData && (
+                    <GeoJSON
+                    data={geojsonData}
+                    style={style}
+                    onEachFeature={onEachFeature}
+                    />
+                )}
         </MapContainer>
+    </div>
     );
 }
 

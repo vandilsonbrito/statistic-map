@@ -1,6 +1,6 @@
 'use client';
 import { useGetCovidCasesData } from "@/hooks/useGetCovidCasesData";
-import { isMapClickedAtom, countryName, covidCasesDataFetched, covidDeathsDataFetched, latestDay, dataLatestDay, casesData } from "@/utils/stores/atoms";
+import { isMapClickedAtom, countryName, covidCasesDataFetched, covidDeathsDataFetched, latestDay, dataLatestDay, casesData, isFetchingCasesDataAtom, isFetchingDeathsDataAtom } from "@/utils/stores/atoms";
 import { useAtom } from "jotai";
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from "react";
@@ -21,6 +21,8 @@ export default function Home() {
 
   const [mapClicked, setMapClicked] = useAtom(isMapClickedAtom);
   const [selectedCountry] = useAtom(countryName);
+  const [isFetchingCasesData, setIsFetchingCasesData] = useAtom(isFetchingCasesDataAtom);
+  const [isFetchingDeathsData, setIsFetchingDeathsData] = useAtom(isFetchingDeathsDataAtom);
   const [covidCasesData, setCovidCasesData] = useAtom(covidCasesDataFetched);
   const [CovidDeathsData, setCovidDeathsData] = useAtom(covidDeathsDataFetched);
   const [covidCases, setCovidCases] = useAtom(casesData);
@@ -29,18 +31,30 @@ export default function Home() {
   const [countryPercentage, setCountryPercentage] = useState<string>('');
 
 
-  const { data:CovidCasesDataHook, refetch:refetchCovidCasesData, isFetching } = useGetCovidCasesData();
+  const { data:CovidCasesDataHook, refetch:refetchCovidCasesData, isFetching: isFetchingCasesDataHook } = useGetCovidCasesData();
   useEffect(() => {
     if(CovidCasesDataHook){
       setCovidCasesData(CovidCasesDataHook);
     }
   }, [CovidCasesDataHook, setCovidCasesData])
 
-  const { data:CovidDeathsDataHook, refetch:refetchCovidDeathsData } = useGetCovidDeathsData();
+  const { data:CovidDeathsDataHook, refetch:refetchCovidDeathsData, isFetching: isFetchingDeathsDataHook } = useGetCovidDeathsData();
   useEffect(() => {
-    console.log("CovidDeathsDataHook", CovidDeathsDataHook);
     setCovidDeathsData(CovidDeathsDataHook)
   }, [CovidDeathsDataHook, setCovidDeathsData])
+
+  useEffect(()=> {
+    if(isFetchingCasesDataHook) {
+      setIsFetchingCasesData(true);
+    }
+    if(isFetchingDeathsDataHook) {
+      setIsFetchingDeathsData(true);
+    }
+    else {
+      setIsFetchingCasesData(false);
+      setIsFetchingDeathsData(false);
+    }
+  }, [isFetchingCasesDataHook, isFetchingDeathsDataHook, setIsFetchingCasesData, setIsFetchingDeathsData])
 
   useEffect(() => {
     if(covidCasesData) {
@@ -118,19 +132,19 @@ export default function Home() {
   }
 
 
-
   return (
-    <main className="flex min-h-screen flex-col items-center px-16 py-5 bg-[#fdfdfc]">
-        <h1 className="text-2xl py-5">Dashboard COVID-19</h1>
+    <main className="flex min-h-screen flex-col items-center px-4 sm:px-8 lg:px-16 py-5 bg-[#f5f5f2]">
+        <h1 className="text-2xl pt-2 pb-5 font-medium">Dashboard COVID-19</h1>
         <div className="w-full h-full rounded-lg">
             <DynamicMap/>
             <h2 className="font-semibold text-lg text-center pt-5">Infected People</h2>
-            <div className="w-full h-full flex justify-around">
-              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-6 bg-white'>
+            <div className="w-full h-full flex flex-col gap-3 lg:flex-row lg:justify-around items-center pt-1 pb-3">
+              
+              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md lg:my-6 bg-white'>
                 <h2 className='text-lg pt-6 text-center'>Global</h2>
                 <div className="w-[18rem] h-[7rem]  flex flex-col items-center gap-5">
                   {
-                    isFetching ? (
+                    isFetchingCasesDataHook ? (
                         <span className="loader"></span>
                     ) : (
                       <>
@@ -141,11 +155,11 @@ export default function Home() {
                   }
                 </div>
               </div>
-              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-6 bg-white'>
+              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md lg:my-6 bg-white'>
                 <h2 className='text-lg pt-6 text-center'>{latestTotalApiData ? selectedCountry : "País"}</h2>
                 <div className="w-[18rem] h-[7rem]  flex flex-col items-center gap-5">
                   {
-                    isFetching ? (
+                    isFetchingCasesDataHook ? (
                         <span className="loader"></span>
                     ) : (
                       <>
@@ -156,11 +170,11 @@ export default function Home() {
                   }
                 </div>
               </div>
-              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md my-6 bg-white'>
+              <div className='w-[18rem] h-[11rem] shadow-xl flex flex-col justify-center items-center gap-5 rounded-md lg:my-6 bg-white'>
                 <h2 className='text-lg pt-6 text-center'>{latestTotalApiData ? selectedCountry : "País"}</h2>
                 <div className="w-[18rem] h-[7rem]  flex flex-col items-center gap-5">
                   {
-                    isFetching ? (
+                    isFetchingCasesDataHook ? (
                       <span className="loader"></span>
                     ) : (
                       <>
@@ -176,11 +190,14 @@ export default function Home() {
         </div>
         <div className="w-full h-full py-7">
           <h2 className="text-lg pt-6 text-center font-semibold pb-10">Data Timeline</h2>
-          <div className="w-full flex flex-col lg:flex-row justify-center items-center gap-10">
+          <div className="w-full flex flex-col xl:flex-row justify-center items-center gap-10">
             <CasesChart/>
             <DeathsChart/>
           </div>
         </div>
+        <footer className="pt-3 pb-2">
+            <p className="text-sm md:text-base">Developed by <a target="_blank" className="underline" href="https://vandilson-portfolio.vercel.app/">Vandilson Brito</a></p>
+        </footer>
     </main>
   );
 }
